@@ -64,7 +64,7 @@
 		// checks url for patern /program/search/$ and filters programs by $ value on page load
 		urlcomponents = window.location.href.split("/");
 		if(urlcomponents[3] == "programs" && urlcomponents[4] == "search"){
-			$("#controls .search").val(urlcomponents[5]);
+			$("#controls .search").val(unescape(urlcomponents[5]));
 		}
 	}
 

@@ -206,6 +206,10 @@ function program_search() {
 
       <select class="type_s" multiple data-placeholder="<span>Choose a</span> Program Type">'. generateOptionHTML($types) . '
       </select>
+
+      <a href="/programs" style="color: red; font-size:.85rem; position: relative; top: .6rem; float: right;">
+        reset filters
+      </a>
     </div>
   </div>
     <ul class="list">
