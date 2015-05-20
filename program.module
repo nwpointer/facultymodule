@@ -47,11 +47,11 @@ function program_search() {
   }
 
 
-  function getTerm($node, $f){
+  function getTerm($node, $f, $n = 0){
     $term =($node->{$f});
     if(!empty($term)){
-      if(!empty($node->{$f}['und'][0]['tid'])){
-        $term =($node->{$f}['und'][0]['tid']);
+      if(!empty($node->{$f}['und'][$n]['tid'])){
+        $term =($node->{$f}['und'][$n]['tid']);
         settype($term, "integer");
         $term = taxonomy_term_load($term)->name;
       }
@@ -60,6 +60,39 @@ function program_search() {
     }
     return $term;
   }
+
+  function getTerms($node, $f){
+    $term = ($node->{$f});
+
+    $terms = array();
+    foreach ($term['und'] as $key => $value) {
+      $terms[$key] = getTerm($node, $f, $key);
+    }
+
+   return implode(', ', $terms);
+  }
+
+  function storeTerms($term, $list){
+    $newTerms = explode(", ", $list);
+    return array_merge($term, $newTerms);
+  }
+
+  // function getTerms($node, $f){
+  //   $term =($node->{$f});
+  //   $tids =[];
+  //   $terms = [];
+  //   if(!empty($term)){
+  //       foreach ($node->{$f}['und'] as $key => $value) {
+  //         $tids[$key] = $value['tid'];
+  //         settype($tids[$key], "integer");
+  //         $terms[$key] = taxonomy_term_load($tids[$key])->name;
+  //       }
+  //   }else{
+  //     $term = null;
+  //   }
+  //   return $implode(', ', $terms);
+  // }
+
 
   function getCustomField($node, $f){
     $term =($node->{$f});
@@ -119,29 +152,36 @@ function program_search() {
     $header_background = getCustomField($node, "field_header_background");
     $enrollment_required = getCustomField($node, "field_enrollment_required");
     $desc = getDescriptionFrom($node);
+
+    getTerms($node, "field_country");
     
 
     $link = drupal_get_path_alias("node/{$value}");
 
     // searchable programs
-    $discipline = getTerm($node, "field_discipline");
-    array_push($disciplines, $discipline);
-    $country = getTerm($node, "field_country");
-    array_push($countries, $country);
-    $term = getTerm($node, "field_term");
-    array_push($terms, $term);
+    $disciplineList = getTerms($node, "field_discipline");
+    $disciplines = storeTerms($disciplines, $disciplineList);
+
+    $countryList = getTerms($node, "field_country");
+    $countries = storeTerms($countries, $countryList);
+
+    $termList = getTerms($node, "field_term");
+    $terms = storeTerms($terms, $termList);
+
+    $typeList = getTerm($node, "field_program_type");
+    $types = storeterms($types, $typeList);
+
     $price = getCustomField($node, "field_program_fee");
     array_push($prices, $price);
     $region = getTerm($node, "field_continent");
     array_push($regions, $region);
-    $type = getTerm($node, "field_program_type");
-    array_push($types, $type);
+    
 
 
     // $program_type = getTerm($node, "field_program_type");
     // array_push($types, $program_type);
     
-    $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'><img class='image' src=$header_background></div><div class='content'><h5 class='title'>$title</h5><p class='term'>$term</p><p class='discipline'>$discipline</p><p class='country'>$country</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$type</p> <p class='desc'>$desc ...</p>
+    $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'><img class='image' src=$header_background></div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$desc ...</p>
     </div></a>";
 
     

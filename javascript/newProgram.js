@@ -1,4 +1,4 @@
-(function($){
+(function($, _){
 	// alert("foo");
 
 	var options = { valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required'] };
@@ -12,6 +12,16 @@
 		console.log(programList.visibleItems.length);
 	}
 
+	function programMatches(requirements, has){
+		var arr = has.split(", ");
+		matches = false;
+		_.each(arr, function(has){
+			matches = matches || _(requirements).contains(has)
+		});
+		return matches;
+
+	}
+
 	function updateList(){
 		var values_discipline = $(".discipline_s").val();
 		var values_country = $(".country_s").val();
@@ -23,17 +33,19 @@
 
 		programList.filter(function(item) {
 			var usertype = getCookie("usertype");
-		    return (_(values_discipline).contains(item.values().discipline) || !values_discipline)
-					&& (_(values_country).contains(item.values().country) || !values_country)
-					&& (_(values_term).contains(item.values().term) || !values_term)
+		    return (programMatches(values_discipline, item.values().discipline) || !values_discipline)
+					&& (programMatches(values_country, item.values().country) || !values_country)
+					&& (programMatches(values_term, item.values().term) || !values_term)
+					&& (programMatches(values_type, item.values().type) || !values_type)
 					&& (_(values_price).contains(item.values().price) || !values_price)
 					&& (_(values_region).contains(item.values().region) || !values_region)
-					&& (_(values_type).contains(item.values().type) || !values_type)
 					&& (_(values_priority).contains(item.values().priority) || !values_priority)
 					&& ((item.values().enrollment_required == 0 && usertype == "Non-UO students")
 					|| (usertype == "UO students"));
 		});
 	}
+
+	
 
 	function checkUserType(){
 	    usertypeIsSet = getCookie("usertype") != "";
@@ -99,6 +111,6 @@
 
 	
 
-})(jQuery);
+})(jQuery, _);
 
 // jQuery(".discipline_s").val()
