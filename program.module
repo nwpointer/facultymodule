@@ -186,7 +186,11 @@ function program_search() {
     // $program_type = getTerm($node, "field_program_type");
     // array_push($types, $program_type);
     
+<<<<<<< HEAD
     $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'><img class='image' src='http://i1.ppfry.com/img/grey.gif' data-src=$header_background></div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$termList</p>
+=======
+    $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'><img class='image' src=$header_background></div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$desc ...</p>
+>>>>>>> 1db3f338612ec286d2e40d7b083c5253740f3a9d
     </div></a>";
 
     
