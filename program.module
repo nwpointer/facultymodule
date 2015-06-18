@@ -1,0 +1,305 @@
+<?php
+
+
+include 'utilityFucntions.php';
+
+function program_menu() {
+	$items['programs'] = array(
+	  'title' => 'programs',
+	  'page callback' => 'program_search',
+	  'access arguments' => array('access content'),
+	);
+
+	return $items;
+}
+
+function program_search() {
+  $program_module_path = drupal_get_path('module', 'program');
+  
+  // loadjs(array(
+  //     '/js/libs/listjs/dist/list.js',
+  //     '/js/libs/listjs/list.pagination.js',
+  //     '/js/libs/underscore.js',
+  //     '/js/sieve.js',
+  //     '/js/api.js',
+  //     '/js/cookies.js',
+  //     '/js/program.js',
+  //     '/index.js'
+  // ));
+
+  loadjs(array(
+      '/javascript/libs/listjs/dist/list.js',
+      '/javascript/jquery.multiple-select.js',
+      '/javascript/cookies.js',
+      '/javascript/newProgram.js'
+  ));
+
+  loadcss(array(
+    '/program.css',
+    '/multiple-select.css'
+  ));
+
+  function getDescriptionFrom($node){
+    $desc = $node->body['und'][0]["value"];
+    $desc = preg_replace('/<h3[^>]*>([\s\S]*?)<\/h3[^>]*>/', '', $desc);
+    $desc = strip_tags($desc);
+    $desc=substr($desc, 0, strpos($desc, ' ', 100));
+    return $desc;
+  }
+
+
+  function getTerm($node, $f, $n = 0){
+    $term =($node->{$f});
+    if(!empty($term)){
+      if(!empty($node->{$f}['und'][$n]['tid'])){
+        $term =($node->{$f}['und'][$n]['tid']);
+        settype($term, "integer");
+        $term = taxonomy_term_load($term)->name;
+      }
+    }else{
+      $term = null;
+    }
+    return $term;
+  }
+
+  function getTerms($node, $f){
+    $term = ($node->{$f});
+
+    $terms = array();
+    foreach ($term['und'] as $key => $value) {
+      $terms[$key] = getTerm($node, $f, $key);
+    }
+
+   return implode(', ', $terms);
+  }
+
+  function storeTerms($term, $list){
+    $newTerms = explode(", ", $list);
+    return array_merge($term, $newTerms);
+  }
+
+  // function getTerms($node, $f){
+  //   $term =($node->{$f});
+  //   $tids =[];
+  //   $terms = [];
+  //   if(!empty($term)){
+  //       foreach ($node->{$f}['und'] as $key => $value) {
+  //         $tids[$key] = $value['tid'];
+  //         settype($tids[$key], "integer");
+  //         $terms[$key] = taxonomy_term_load($tids[$key])->name;
+  //       }
+  //   }else{
+  //     $term = null;
+  //   }
+  //   return $implode(', ', $terms);
+  // }
+
+
+  function getCustomField($node, $f){
+    $term =($node->{$f});
+    if(!empty($term)){
+      if($f == "field_3d_party_provider_program"){
+        return $term['und'][0]['value'];
+      }
+      if($f == "field_header_background"){
+        // print_r("'" . $term['und'][0]['filename'] ."'");
+        if($term['und'][0]){
+          //http://abhijit67.blog.com/files/2012/02/mount-everast.jpg
+        }
+        $url =  "'" . file_create_url($term['und'][0]['uri']) ."'";
+        $nurl = split('/', $url);
+        $nurl = "http://geo.uoregon.edu/sites/geo1.uoregon.edu/files/" . end($nurl);
+        $nurl = rtrim($nurl, "'");
+        return $nurl;
+      }
+      if($f == "field_program_fee"){
+        return($term['und'][0]['value']);
+      }
+      return $term['und'][0];
+    }else{
+      if($f == "field_3d_party_provider_program"){
+        return 0;
+      }
+      if($f == "field_header_background"){
+        return "'http://abhijit67.blog.com/files/2012/02/mount-everast.jpg'";
+      }
+      if($f == "field_term"){
+        return "na";
+      }
+      return null;
+    }
+  }
+
+  $nids = db_select('node', 'n')
+    ->fields('n', array('nid'))
+    ->fields('n', array('type'))
+    ->condition('n.type', 'program')
+    ->execute()
+    ->fetchCol(); // returns an indexed array
+  $numberofPrograms = count($nids);
+
+    // print_r(count($nids));
+
+  $disciplines = array();
+  $countries = array();
+  $terms = array();
+  $prices = array();
+  $regions = array();
+  $types = array();
+
+  $programCards = "";
+  foreach ($nids as $value) {
+    $node = node_load($value, false);
+
+    $title = $node->title;
+    $priority = getCustomField($node, "field_3d_party_provider_program");
+    $academic_standing = getCustomField($node, "field_academic_standing");
+    $header_background = getCustomField($node, "field_header_background");
+    $enrollment_required = getCustomField($node, "field_enrollment_required");
+    $desc = getDescriptionFrom($node);
+
+    getTerms($node, "field_country");
+    
+
+    $link = drupal_get_path_alias("node/{$value}");
+
+    // searchable programs
+    $disciplineList = getTerms($node, "field_discipline");
+    $disciplines = storeTerms($disciplines, $disciplineList);
+
+    $countryList = getTerms($node, "field_country");
+    $countries = storeTerms($countries, $countryList);
+
+    $termList = getTerms($node, "field_term");
+    $terms = storeTerms($terms, $termList);
+
+    $typeList = getTerm($node, "field_program_type");
+    $types = storeterms($types, $typeList);
+
+    $price = getCustomField($node, "field_program_fee");
+    array_push($prices, $price);
+    $region = getTerm($node, "field_continent");
+    array_push($regions, $region);
+    
+
+
+    // $program_type = getTerm($node, "field_program_type");
+    // array_push($types, $program_type);
+    
+    $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'><img class='image' src='http://i1.ppfry.com/img/grey.gif' data-src=$header_background></div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$termList</p>
+    </div></a>";
+
+    
+
+    $programCards .= $card;  
+    // break;
+  }
+
+  function generateOptionHTML($group){
+    $optionHTML="";
+    foreach (array_unique($group) as $d) {
+      if($d != ""){
+        $optionHTML .= "<option value='" . $d ."'>$d</option>";
+      }
+    }
+    return $optionHTML;
+  }
+
+  // $programscontent = node_load_multiple(array(), array('type' => 'program'));
+
+ 
+
+  // $testCard = '<li class="card"><a class="url" href="http://geo.dd:8083/Nanjing/Summer_Chinese"><div class="img-wrap"><img class="image" src="http://abhijit67.blog.com/files/2012/02/mount-everast.jpg"></div><div class="content"><h5 class="title">CIEE: Summer Chinese Studies in Nanjing, China</h5><p class="term">Summer</p><p class="discipline">Language Learning</p></div></a>';
+
+
+  // for ($i=0; $i < count($programscontent) ; $i++) { 
+  //   $programCards .= $testCard;
+  // }
+
+  return array('#markup' => '
+  <div id="enrollment_notice" class="weak">
+    Showing results for: <span></span> <a id="change" href="">change</a>
+  </div>
+  <div id="question" style="display:none;">
+    Are you a University of Oregon student?<br>
+    <button id="yes">yes</button>
+    <button id="no">no</button>
+  </div>
+
+  <div id="programList">
+  <div id="controls">
+    <input class="search" placeholder="Search" value=""/>
+    <!--<span class="weak">found:</span> <span id="found">'."$numberofPrograms".'</span>-->
+    <br><br>
+    
+    <div id="catagories">
+      <select class="discipline_s" multiple data-placeholder="<span>Choose a </span> Subject">'. generateOptionHTML($disciplines) . '
+
+      </select>
+
+      <select class="country_s" multiple data-placeholder="<span>Choose a</span> Country">'. generateOptionHTML($countries) . '
+      </select>
+
+      <select class="term_s" multiple data-placeholder="<span>Choose a</span> Term">'. generateOptionHTML($terms) . '
+      </select>
+
+      <!--<select class="price_s" multiple data-placeholder="<span>Choose a</span> Price">'. generateOptionHTML($prices) . '
+      </select>-->
+
+      <select class="region_s" multiple data-placeholder="<span>Choose a</span> Region">'. generateOptionHTML($regions) . '
+      </select>
+
+      <select class="type_s" multiple data-placeholder="<span>Choose a</span> Program Type">'. generateOptionHTML($types) . '
+      </select>
+
+      <div class="ms-parent reset">
+        <a href="/programs">
+          reset 
+        </a>
+      </div>
+    </div>
+  </div>
+    <ul class="list">
+      '. $programCards .'
+      </li>
+    </ul>
+</div>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+  ');
+
+  return array('#markup' => '
+    <div id="enrollment_notice">
+      Showing results for: <span></span> <a id="change" href="">change</a>
+    </div>
+    <div id="question" style="display:none;">
+      Are you a University of Oregon student? <br>
+      <button id="yes" class="button">Yes</button>
+      <button id="no">No</button>
+    </div>
+
+  	<div id="programs">
+    
+        <input class="search" placeholder="Where do you want to study?"/>
+        <button class="sort" data-sort="title">
+          search
+        </button>
+        <div class="catagories">
+        filter by:' . selectFrom(array('discipline', 'term')) .'
+        </div>
+        <ul class="list">
+        </ul>
+        <br />
+        <!-- results: -->
+        <!-- <ul class="pag-nav">
+          <li id="first"><a><</a></li>
+          <li id="last"><a>></a></li>
+        </ul> -->
+        <ul class="pagination"> 
+        </ul>
+      </div>
+  ');
+} 
+
+
