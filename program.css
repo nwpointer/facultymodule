@@ -100,6 +100,8 @@
   }
 */
 
+
+
 .list > li .content{
   padding:10px;
   height: 116px;
@@ -308,3 +310,9 @@ input:focus {
 #programList{
   display: none;
 }
+
+#programList .content{
+  padding-top: 1rem;
+}
+
+
