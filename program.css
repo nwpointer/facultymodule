@@ -312,7 +312,7 @@ input:focus {
 }
 
 #programList .content{
-  padding-top: 1rem;
+  padding-top: 1rem !important;
 }
 
 
