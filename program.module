@@ -15,17 +15,6 @@ function program_menu() {
 
 function program_search() {
   $program_module_path = drupal_get_path('module', 'program');
-  
-  // loadjs(array(
-  //     '/js/libs/listjs/dist/list.js',
-  //     '/js/libs/listjs/list.pagination.js',
-  //     '/js/libs/underscore.js',
-  //     '/js/sieve.js',
-  //     '/js/api.js',
-  //     '/js/cookies.js',
-  //     '/js/program.js',
-  //     '/index.js'
-  // ));
 
   loadjs(array(
       '/javascript/libs/listjs/dist/list.js',
@@ -187,6 +176,9 @@ function program_search() {
     $typeList = getTerm($node, "field_program_type");
     $types = storeterms($types, $typeList);
 
+    $tagsList = getTerms($node, "field_tags");
+    $tags = storeTerms($tags, $tagsList);
+
     $price = getCustomField($node, "field_program_fee");
     array_push($prices, $price);
     $region = getTerm($node, "field_continent");
@@ -206,7 +198,7 @@ function program_search() {
     // $program_type = getTerm($node, "field_program_type");
     // array_push($types, $program_type);
     
-    $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'>$imagecode</div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$termList</p>
+    $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'>$imagecode</div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$termList</p><p class='tags'>$tagsList</p>
     </div></a>";
 
     

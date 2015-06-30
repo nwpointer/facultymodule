@@ -1,7 +1,7 @@
 (function($, _){
 	// alert("foo");
 
-	var options = { valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required'] };
+	var options = { valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required', 'tags'] };
 	programList = new List('programList', options);
 
 	programList.on("updated", function(){
