@@ -21,7 +21,8 @@ function program_search() {
       '/js/libs/listjs/list.pagination.js',
       '/javascript/jquery.multiple-select.js',
       '/javascript/cookies.js',
-      '/javascript/newProgram.js'
+      '/javascript/newProgram.js',
+      '/javascript/clearCountries.js'
   ));
 
   loadcss(array(

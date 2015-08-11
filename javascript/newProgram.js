@@ -1,6 +1,9 @@
+
+
+
+
 (function($, _){
 	// alert("foo");
-
 	var options = { valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required', 'tags'] };
 	programList = new List('programList', options);
 
@@ -14,7 +17,7 @@
 
 	function programMatches(requirements, has){
 		var arr = has.split(", ");
-		matches = false;
+		var matches = false;
 		_.each(arr, function(has){
 			matches = matches || _(requirements).contains(has)
 		});
@@ -22,27 +25,66 @@
 
 	}
 
+
+	// clear out countries with no entries
+	function removeCountriesFromMultiSelect(countries){
+		countries.forEach(function(country){
+			$('input[value="'+country+'"]').parent().remove();
+		})
+	}
+
+	function cleanCountry(arr){
+		arr.forEach(function(v,i){
+			arr[i] = v.replace("amp;", "")
+		})
+		return arr;
+	}
+
+	function seperateAndCleanCountries(arr){
+		var n = [];
+		arr.forEach(function(v,i){
+			c = v.split(", ");
+			n = n.concat(cleanCountry(c))
+		})
+		return n;
+	}
+	
+
 	function updateList(){
-		var values_discipline = $(".discipline_s").val();
-		var values_country = $(".country_s").val();
-		var values_term = $(".term_s").val();
-		var values_price = $(".price_s").val();
-		var values_region = $(".region_s").val();
-		var values_type = $(".type_s").val();
-		var values_priority = $(".priority_s").val();
+		var values = {}
+		values.discipline = $(".discipline_s").val();
+		values.country = $(".country_s").val();
+		values.term = $(".term_s").val();
+		values.price = $(".price_s").val();
+		values.region = $(".region_s").val();
+		values.type = $(".type_s").val();
+		
+		values.priority = $(".priority_s").val();
+		console.log(values);
 
 		programList.filter(function(item) {
 			var usertype = getCookie("usertype");
-		    return (programMatches(values_discipline, item.values().discipline) || !values_discipline)
-					&& (programMatches(values_country, item.values().country) || !values_country)
-					&& (programMatches(values_term, item.values().term) || !values_term)
-					&& (programMatches(values_type, item.values().type) || !values_type)
-					&& (_(values_price).contains(item.values().price) || !values_price)
-					&& (_(values_region).contains(item.values().region) || !values_region)
-					&& (_(values_priority).contains(item.values().priority) || !values_priority)
+			//console.log(programMatches(values.type, item.values().type));
+		    return (programMatches(values.discipline, item.values().discipline) || !values.discipline)
+					&& (programMatches(values.country, item.values().country) || !values.country)
+					&& (programMatches(values.term, item.values().term) || !values.term)
+					&& (programMatches(values.type, item.values().type) || !values.type)
+					&& (_(values.price).contains(item.values().price) || !values.price)
+					&& (_(values.region).contains(item.values().region) || !values.region)
+					&& (_(values.priority).contains(item.values().priority) || !values.priority)
 					&& ((item.values().enrollment_required == 0 && usertype == "Non-UO students")
 					|| (usertype == "UO students"));
 		});
+
+		if(getCookie("usertype")){
+			intUserType = getCookie("usertype") == "UO students" ? 1 : 0 ;
+
+			allCountry = Object.keys(_.countBy(_.pluck(_.pluck(programList.items, "_values"), "country")))
+			visCountry = Object.keys(_.countBy(_.filter(_.pluck(programList.items, "_values"), function(v){return v.enrollment_required == intUserType}), "country"));
+			hidCountry = seperateAndCleanCountries($(allCountry).not(visCountry).get());
+			
+			removeCountriesFromMultiSelect(hidCountry);
+		}
 	}
 
 	
@@ -87,6 +129,8 @@
 		registerUsertypeAnswer();
 		filterBySearchUrl();
 
+
+
 		$('#enrollment_notice').click(function(){
 			eraseCookie("usertype");
 		});
@@ -106,7 +150,6 @@
 	  	programList.search($("input.search").val());
 		programList.sort('priority', { order: "asc" });
 
-		console.log(programList.visibleItems.length);
 	});
 
 	
