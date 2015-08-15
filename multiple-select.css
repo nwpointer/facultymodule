@@ -150,6 +150,7 @@ line-height: 30px;
     display: list-item;
     background-image: none;
     position: static;
+    margin-left: 0rem !important;
 }
 
 .ms-drop ul > li .disabled {

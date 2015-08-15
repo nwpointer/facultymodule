@@ -1,7 +1,3 @@
-
-
-
-
 (function($, _){
 	// alert("foo");
 	var options = { valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required', 'tags'] };
@@ -10,6 +6,7 @@
 	programList.on("updated", function(){
 		$("#controls #found").html(programList.visibleItems.length);
 	});
+
 	function updateLogList(){
 		updateList();
 		console.log(programList.visibleItems.length);
@@ -62,16 +59,18 @@
 		values.priority = $(".priority_s").val();
 		console.log(values);
 
+		programList.filter(); programList.update();
 		programList.filter(function(item) {
 			var usertype = getCookie("usertype");
 			//console.log(programMatches(values.type, item.values().type));
+			// PRICE CONDITION && (_(values.price).contains(item.values().price) || !values.price)
+			// && (_(values.priority).contains(item.values().priority) || !values.priority)
 		    return (programMatches(values.discipline, item.values().discipline) || !values.discipline)
 					&& (programMatches(values.country, item.values().country) || !values.country)
 					&& (programMatches(values.term, item.values().term) || !values.term)
 					&& (programMatches(values.type, item.values().type) || !values.type)
-					&& (_(values.price).contains(item.values().price) || !values.price)
 					&& (_(values.region).contains(item.values().region) || !values.region)
-					&& (_(values.priority).contains(item.values().priority) || !values.priority)
+					
 					&& ((item.values().enrollment_required == 0 && usertype == "Non-UO students")
 					|| (usertype == "UO students"));
 		});
@@ -80,7 +79,7 @@
 			intUserType = getCookie("usertype") == "UO students" ? 1 : 0 ;
 
 			allCountry = Object.keys(_.countBy(_.pluck(_.pluck(programList.items, "_values"), "country")))
-			visCountry = Object.keys(_.countBy(_.filter(_.pluck(programList.items, "_values"), function(v){return v.enrollment_required == intUserType}), "country"));
+			visCountry = Object.keys(_.countBy(_.filter(_.pluck(programList.items, "_values"), function(v){return v.enrollment_required == intUserType || intUserType }), "country"));
 			hidCountry = seperateAndCleanCountries($(allCountry).not(visCountry).get());
 			
 			removeCountriesFromMultiSelect(hidCountry);
