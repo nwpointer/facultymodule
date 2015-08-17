@@ -174,8 +174,9 @@ function program_search() {
     $termList = getTerms($node, "field_term");
     $terms = storeTerms($terms, $termList);
 
-    $typeList = getTerm($node, "field_program_type");
+    $typeList = getTerms($node, "field_program_type");
     $types = storeterms($types, $typeList);
+    $ptypes = implode(", ", $typeList);
 
     $tagsList = getTerms($node, "field_tags");
     $tags = storeTerms($tags, $tagsList);
@@ -198,6 +199,9 @@ function program_search() {
 
     // $program_type = getTerm($node, "field_program_type");
     // array_push($types, $program_type);
+
+    // print_r(getTerms($node, "field_program_type"));
+    // print_r("<br >");
     
     $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'>$imagecode</div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$termList</p><p class='tags'>$tagsList</p>
     </div></a>";

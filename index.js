@@ -4,10 +4,7 @@
 var options = { 
   valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'priority', 'description'],
   // item: '<li><a class="discipline"></a> <br /><span class="url"></span><p class="country"></p></li>'//,
-  item: '<li class="card"><a class="url"><div class="img-wrap"><img class="image"></div><div class="content"><h5 class="title"></h5><p class="term"></p><p class="discipline"></p></div></a></li>',
-  plugins: [
-      ListPagination({})
-  ]
+  item: '<li class="card"><a class="url"><div class="img-wrap"><img class="image"></div><div class="content"><h5 class="title"></h5><p class="term"></p><p class="discipline"></p></div></a></li>'
 };
 
 var catagories = {}; // the catagories user can use from

@@ -1,15 +1,32 @@
+// e.visibleItems
+
 (function($, _){
 	// alert("foo");
-	var options = { valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required', 'tags'] };
+	var options = { 
+		valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required', 'tags'],
+		page:400
+	};
 	programList = new List('programList', options);
 
 	programList.on("updated", function(){
 		$("#controls #found").html(programList.visibleItems.length);
 	});
 
+	//weird cross filter empty list bug fix... 
+	programList.on("filterComplete", function(e){
+		if(!e.visibleItems){e.filter();e.update()}
+		$("body img").unveil();
+	});
+
+	$(".ms-parent.reset a").click(function(e){
+		(e.preventDefault());
+		programList.filter();
+		$("select").multipleSelect('uncheckAll');
+	})
+
 	function updateLogList(){
 		updateList();
-		console.log(programList.visibleItems.length);
+		//console.log(programList.visibleItems.length);
 	}
 
 	function programMatches(requirements, has){
@@ -57,9 +74,9 @@
 		values.type = $(".type_s").val();
 		
 		values.priority = $(".priority_s").val();
-		console.log(values);
 
-		programList.filter(); programList.update();
+		window.val = values;
+
 		programList.filter(function(item) {
 			var usertype = getCookie("usertype");
 			//console.log(programMatches(values.type, item.values().type));
@@ -75,15 +92,15 @@
 					|| (usertype == "UO students"));
 		});
 
-		if(getCookie("usertype")){
-			intUserType = getCookie("usertype") == "UO students" ? 1 : 0 ;
+		// if(getCookie("usertype")){
+		// 	intUserType = getCookie("usertype") == "UO students" ? 1 : 0 ;
 
-			allCountry = Object.keys(_.countBy(_.pluck(_.pluck(programList.items, "_values"), "country")))
-			visCountry = Object.keys(_.countBy(_.filter(_.pluck(programList.items, "_values"), function(v){return v.enrollment_required == intUserType || intUserType }), "country"));
-			hidCountry = seperateAndCleanCountries($(allCountry).not(visCountry).get());
+		// 	allCountry = Object.keys(_.countBy(_.pluck(_.pluck(programList.items, "_values"), "country")))
+		// 	visCountry = Object.keys(_.countBy(_.filter(_.pluck(programList.items, "_values"), function(v){return v.enrollment_required == intUserType || intUserType }), "country"));
+		// 	hidCountry = seperateAndCleanCountries($(allCountry).not(visCountry).get());
 			
-			removeCountriesFromMultiSelect(hidCountry);
-		}
+		// 	removeCountriesFromMultiSelect(hidCountry);
+		// }
 	}
 
 	
@@ -130,6 +147,7 @@
 
 
 
+
 		$('#enrollment_notice').click(function(){
 			eraseCookie("usertype");
 		});
@@ -138,11 +156,12 @@
 
 		// runs through all program multiselect options and trigers filter on change
 		$('select').each(function(){
-	    $(this).multipleSelect({
-	      	onClick: updateList,
-	      	selectAll: false,
-	     	placeholder: $(this).data('placeholder')
-	    	});
+			console.log()
+		    $(this).multipleSelect({
+		      	onClick: updateList,
+		      	selectAll: false,
+		     	placeholder: $(this).data('placeholder')
+		    	});
 	  	});
 
 		updateList();
