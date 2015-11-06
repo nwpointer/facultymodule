@@ -150,7 +150,7 @@ input:focus {
   display:inline-block;
   color:#fff;
   text-decoration: none;
-  background-color: #28a8e0;
+  background-color: #DDE028;
   height:30px;
 }
 .sort:hover {
@@ -205,7 +205,7 @@ input:focus {
 
 
 #change{
-  color:#28A8E0;
+  color:#DDE028;
   text-decoration: underline;
 }
 
@@ -255,12 +255,12 @@ input:focus {
   display:inline-block;
   color:#fff;
   text-decoration: none;
-  background-color: #28a8e0;
+  background-color: #DDE028;
   height:30px;
 }
 .sort:hover {
   text-decoration: none;
-  background-color:#1b8aba;
+  background-color:#E0D228;
 }
 .sort:focus {
   outline:none;
@@ -312,7 +312,42 @@ input:focus {
 }
 
 #programList .content{
-  padding-top: 1rem !important;
+  padding: .5rem 0rem .5rem 1rem !important;
 }
 
+#programList .content *{
+  display: inline-block;
+}
+
+#programList ul.list{
+  padding-left: 0rem !important; 
+}
+
+#programList thead td{
+  padding: 0px 0px 0px 0px;
+}
+
+#programList td .sort{
+  border-radius: 0;
+      width: 100%;
+      box-sizing: border-box;
+      padding-left: .75rem;
+      border: 0PX;
+      FONT-WEIGHT: 700;
+      TEXT-TRANSFORM: UPPERCASE
+}
+
+#catagories{
+  margin-right:0px !important;
+}
+
+.ms-choice{
+  width: 307px;
+}
+
+.ms-drop.bottom ul{
+  width: 307px;
+  box-sizing:border-box;
+  padding-left:1rem;
+}
 

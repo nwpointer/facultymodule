@@ -3,8 +3,7 @@
 (function($, _){
 	// alert("foo");
 	var options = { 
-		valueNames: [ 'discipline', 'country', 'term', 'price', 'region', 'type', 'title' , 'priority', 'enrollment_required', 'tags'],
-		page:400
+		valueNames: [ 'name', 'country', 'title', 'bio', 'myear', 'uyear', 'dyear', 'minst', 'uinst', 'dinst', 'mafield', 'uafield', 'dafield', 'email', 'website' ],
 	};
 	programList = new List('programList', options);
 
@@ -66,31 +65,53 @@
 
 	function updateList(){
 		var values = {}
-		values.discipline = $(".discipline_s").val();
-		values.country = $(".country_s").val();
-		values.term = $(".term_s").val();
-		values.price = $(".price_s").val();
-		values.region = $(".region_s").val();
-		values.type = $(".type_s").val();
-		
-		values.priority = $(".priority_s").val();
+		values.myear = $(".myear_s").val();
+		values.uyear = $(".uyear_s").val();
+		values.dyear = $(".dyear_s").val();
 
-		window.val = values;
+		values.minst = $(".minst_s").val();
+		values.uinst = $(".uinst_s").val();
+		values.dinst = $(".dinst_s").val();
+
+		values.mafield = $(".mafield_s").val();
+		values.uafield = $(".uafield_s").val();
+		values.dafield = $(".dafield_s").val();
+		console.log(values);
 
 		programList.filter(function(item) {
-			var usertype = getCookie("usertype");
-			//console.log(programMatches(values.type, item.values().type));
-			// PRICE CONDITION && (_(values.price).contains(item.values().price) || !values.price)
-			// && (_(values.priority).contains(item.values().priority) || !values.priority)
-		    return (programMatches(values.discipline, item.values().discipline) || !values.discipline)
-					&& (programMatches(values.country, item.values().country) || !values.country)
-					&& (programMatches(values.term, item.values().term) || !values.term)
-					&& (programMatches(values.type, item.values().type) || !values.type)
-					&& (_(values.region).contains(item.values().region) || !values.region)
-					
-					&& ((item.values().enrollment_required == 0 && usertype == "Non-UO students")
-					|| (usertype == "UO students"));
-		});
+			return (_(values.minst).contains(item.values().minst) || !values.minst)
+				&& (_(values.uinst).contains(item.values().uinst) || !values.uinst)
+				&& (_(values.dinst).contains(item.values().dinst) || !values.dinst)
+				&& (_(values.mafield).contains(item.values().mafield) || !values.mafield)
+				&& (_(values.uafield).contains(item.values().uafield) || !values.uafield)
+				&& (_(values.dafield).contains(item.values().dafield) || !values.dafield)
+				&& (_(values.myear).contains(item.values().myear) || !values.myear)
+				&& (_(values.uyear).contains(item.values().uyear) || !values.uyear)
+				&& (_(values.dyear).contains(item.values().dyear) || !values.dyear)
+		})
+
+		// values.discipline = $(".discipline_s").val();
+		// values.country = $(".country_s").val();
+		// values.term = $(".term_s").val();
+		// values.price = $(".price_s").val();
+		// values.region = $(".region_s").val();
+		// values.type = $(".type_s").val();
+		
+		// values.priority = $(".priority_s").val();
+
+		// window.val = values;
+
+		// programList.filter(function(item) {
+		// 	var usertype = getCookie("usertype");
+		// 	//console.log(programMatches(values.type, item.values().type));
+		// 	// PRICE CONDITION && (_(values.price).contains(item.values().price) || !values.price)
+		// 	// && (_(values.priority).contains(item.values().priority) || !values.priority)
+		//     return (programMatches(values.discipline, item.values().discipline) || !values.discipline)
+		// 			&& (programMatches(values.country, item.values().country) || !values.country)
+		// 			&& (programMatches(values.term, item.values().term) || !values.term)
+		// 			&& (programMatches(values.type, item.values().type) || !values.type)
+		// 			&& (_(values.region).contains(item.values().region) || !values.region);
+		// });
 
 		// if(getCookie("usertype")){
 		// 	intUserType = getCookie("usertype") == "UO students" ? 1 : 0 ;
@@ -106,16 +127,20 @@
 	
 
 	function checkUserType(){
-	    usertypeIsSet = getCookie("usertype") != "";
-	    if(usertypeIsSet){
-	        $('#question').hide();
-	        $('#programList').show();
-	        $('#enrollment_notice').show();
-	        $('#enrollment_notice').find("span").html(getCookie("usertype"));
-	    }else{
-	        $('#question').show();
-	        $('#programList').hide();
-	    }
+		$('#question').hide();
+		$('#programList').show();
+		$('#enrollment_notice').hide();
+		//$('#enrollment_notice').find("span").html(getCookie("usertype"));
+	    // usertypeIsSet = getCookie("usertype") != "";
+	    // if(usertypeIsSet){
+	    //     $('#question').hide();
+	    //     $('#programList').show();
+	    //     $('#enrollment_notice').show();
+	    //     $('#enrollment_notice').find("span").html(getCookie("usertype"));
+	    // }else{
+	    //     $('#question').show();
+	    //     $('#programList').hide();
+	    // }
 	}
 
 	function registerUsertypeAnswer(){
@@ -142,15 +167,15 @@
 
 
 		checkUserType();
-		registerUsertypeAnswer();
-		filterBySearchUrl();
+		//registerUsertypeAnswer();
+		//filterBySearchUrl();
 
 
 
 
-		$('#enrollment_notice').click(function(){
-			eraseCookie("usertype");
-		});
+		// $('#enrollment_notice').click(function(){
+		// 	eraseCookie("usertype");
+		// });
 
 
 
@@ -165,8 +190,8 @@
 	  	});
 
 		updateList();
-	  	programList.search($("input.search").val());
-		programList.sort('priority', { order: "asc" });
+	  	//programList.search($("input.search").val());
+		//programList.sort('priority', { order: "asc" });
 
 	});
 

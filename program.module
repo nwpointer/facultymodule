@@ -4,17 +4,17 @@
 include 'utilityFucntions.php';
 
 function program_menu() {
-	$items['programs'] = array(
-	  'title' => 'programs',
-	  'page callback' => 'program_search',
+	$items['faculty'] = array(
+	  'title' => 'Faculty',
+	  'page callback' => 'faculty_search',
 	  'access arguments' => array('access content'),
 	);
 
 	return $items;
 }
 
-function program_search() {
-  $program_module_path = drupal_get_path('module', 'program');
+function faculty_search() {
+  $program_module_path = drupal_get_path('module', 'faculty');
 
   loadjs(array(
       '/javascript/libs/listjs/dist/list.js',
@@ -29,15 +29,6 @@ function program_search() {
     '/program.css',
     '/multiple-select.css'
   ));
-
-  function getDescriptionFrom($node){
-    $desc = $node->body['und'][0]["value"];
-    $desc = preg_replace('/<h3[^>]*>([\s\S]*?)<\/h3[^>]*>/', '', $desc);
-    $desc = strip_tags($desc);
-    $desc=substr($desc, 0, strpos($desc, ' ', 100));
-    return $desc;
-  }
-
 
   function getTerm($node, $f, $n = 0){
     $term =($node->{$f});
@@ -55,94 +46,43 @@ function program_search() {
 
   function getTerms($node, $f){
     $term = ($node->{$f});
-
-    $terms = array();
-    foreach ($term['und'] as $key => $value) {
-      $terms[$key] = getTerm($node, $f, $key);
-    }
-
-   return implode(', ', $terms);
-  }
-
-  function storeTerms($term, $list){
-    $newTerms = explode(", ", $list);
-    return array_merge($term, $newTerms);
-  }
-
-  // function getTerms($node, $f){
-  //   $term =($node->{$f});
-  //   $tids =[];
-  //   $terms = [];
-  //   if(!empty($term)){
-  //       foreach ($node->{$f}['und'] as $key => $value) {
-  //         $tids[$key] = $value['tid'];
-  //         settype($tids[$key], "integer");
-  //         $terms[$key] = taxonomy_term_load($tids[$key])->name;
-  //       }
-  //   }else{
-  //     $term = null;
-  //   }
-  //   return $implode(', ', $terms);
-  // }
-
-
-  function getCustomField($node, $f){
-    $term =($node->{$f});
     if(!empty($term)){
-      if($f == "field_3d_party_provider_program"){
-        return $term['und'][0]['value'];
+      $terms = array();
+      foreach ($term['und'] as $key => $value) {
+        $terms[$key] = getTerm($node, $f, $key);
       }
-      if($f == "field_header_background"){
-        // print_r("'" . $term['und'][0]['filename'] ."'");
-        if($term['und'][0]){
-          //http://abhijit67.blog.com/files/2012/02/mount-everast.jpg
-        }
-        
-        // $nurl = split('/', $url);
-        // $nurl = "http://geo.uoregon.edu/sites/geo1.uoregon.edu/files/" . end($nurl);
-        // $nurl = rtrim($nurl, "'");
-        $uri = $term['und'][0]['uri'];
-        $style = 'program_image';
-        // $url =  "'" . file_create_url($uri) ."'";
-        
-        $styled_url = image_style_path($style, $uri);
-        $url =  "'" . file_create_url($styled_url) ."'";
-        return $url;
-      }
-      if($f == "field_program_fee"){
-        return($term['und'][0]['value']);
-      }
-      return $term['und'][0];
-    }else{
-      if($f == "field_3d_party_provider_program"){
-        return 0;
-      }
-      if($f == "field_header_background"){
-        return "'http://abhijit67.blog.com/files/2012/02/mount-everast.jpg'";
-      }
-      if($f == "field_term"){
-        return "na";
-      }
-      return null;
+
+      return implode(', ', $terms);
     }
   }
+
+  function getFacultyField($node, $f){
+    $term = ($node->{$f});
+    if(!empty($term)){
+        return $term['und'][0]['value']; 
+    }
+  }
+
 
   $nids = db_select('node', 'n')
     ->fields('n', array('nid'))
     ->fields('n', array('type'))
-    ->condition('n.type', 'program')
+    ->condition('n.type', 'faculty_profile')
     ->execute()
     ->fetchCol(); // returns an indexed array
   $numberofPrograms = count($nids);
 
-    // print_r(count($nids));
+  $myearList = array();
+  $uyearList = array();
+  $dyearList = array();
 
-  $disciplines = array();
-  $countries = array();
-  $terms = array();
-  $prices = array();
-  $regions = array();
-  $types = array();
+  $minstList = array();
+  $uinstList = array();
+  $dinstList = array();
+
+  $mafieldList = array(); 
+  $uafieldList = array(); 
+  $dafieldList = array(); 
 
   $programCards = "";
 
@@ -152,64 +92,100 @@ function program_search() {
 
     $node = node_load($value, false);
 
-    $title = $node->title;
-    $priority = getCustomField($node, "field_3d_party_provider_program");
-    $academic_standing = getCustomField($node, "field_academic_standing");
-    $header_background = getCustomField($node, "field_header_background");
-    $enrollment_required = getCustomField($node, "field_enrollment_required");
-    $desc = getDescriptionFrom($node);
+    $name = $node->title;
 
-    getTerms($node, "field_country");
-    
+    $dyear = getFacultyField($node, "field_doctorate_year");
+    array_push($dyearList, $dyear);
+    $uyear = getFacultyField($node, "field_undergraduate_year");
+    array_push($uyearList, $uyear);
+    $myear = getFacultyField($node, "field_masters_year");
+    array_push($myearList, $myear);
 
+    $minst = getFacultyField($node, "field_master_granting_inst");
+    array_push($minstList, $minst);
+    $uinst = getFacultyField($node, "field_undergraduate_institution");
+    array_push($uinstList, $uinst);
+    $dinst = getFacultyField($node, "field_doctorate_granting_institu");
+    array_push($dinstList, $dinst);
+
+    $dafield = getTerms($node, "field_doctorate_academic_field");
+    array_push($dafieldList, $dafield);
+    $uafield = getTerms($node, "field_undergraduate_field");
+    array_push($uafieldList, $uafield);
+    $mafield = getTerms($node, "field_master_academic_field");
+    array_push($mafieldList, $mafield);
+
+
+    $bio = getFacultyField($node, "field_short_bio");
     $link = drupal_get_path_alias("node/{$value}");
+    $fcountry = getTerms($node, "field_country");
 
-    // searchable programs
-    $disciplineList = getTerms($node, "field_discipline");
-    $disciplines = storeTerms($disciplines, $disciplineList);
+    $title = getTerms($node, "field_title");
+    $website = getFacultyField($node, "field_website");
+    $email = getFacultyField($node, "field_email");
 
-    $countryList = getTerms($node, "field_country");
-    $countries = storeTerms($countries, $countryList);
-
-    $termList = getTerms($node, "field_term");
-    $terms = storeTerms($terms, $termList);
-
-    $typeList = getTerms($node, "field_program_type");
-    $types = storeterms($types, $typeList);
-    $ptypes = implode(", ", $typeList);
-
-    $tagsList = getTerms($node, "field_tags");
-    $tags = storeTerms($tags, $tagsList);
-
-    $price = getCustomField($node, "field_program_fee");
-    array_push($prices, $price);
-    $region = getTerm($node, "field_continent");
-    array_push($regions, $region);
-
-
-    // crop image
-    // $header_background = "/sites/all/themes/basic/images/Trevi.jpg";
-    // $header_background = file_build_uri($header_background);
-    // $header_background = image_style_url('program_image', $header_background);
-
-
-    $imagecode = (($x==148) || ($x<11) ? "<img class='image". $x ."' src=$header_background>" :"<img class='image". $x ."' src='http://i1.ppfry.com/img/grey.gif' data-src=$header_background>");
-    
-
-
-    // $program_type = getTerm($node, "field_program_type");
-    // array_push($types, $program_type);
-
-    // print_r(getTerms($node, "field_program_type"));
-    // print_r("<br >");
-    
-    $card = "<li class='card'><a class='url' href=/{$link}><div class='img-wrap'>$imagecode</div><div class='content'><h5 class='title'>$title</h5><p class='term'>$termList</p><p class='discipline'>$disciplineList</p><p class='country'>$countryList</p><p class='price'>$price</p><p class='region'>$region</p><p class='priority'>$priority</p><p class='enrollment_required'>$enrollment_required[value]</p><p class='type'>$typeList</p> <p class='desc'>$termList</p><p class='tags'>$tagsList</p>
-    </div></a>";
-
-    
-
+    $card = '
+      <tr>
+        <td class="name">
+          <h5>
+            <a href="'.$link.'" >
+            '.$name.'
+            </a>
+          </h5>
+        </td>
+        <td class="title">
+          <h5 >'.$title.'</h5>
+        <td class="email">
+          <h5>
+            <a href="mailto:'.$email.'" >
+            '.$email.'
+            </a>
+          </h5>
+        </td>
+        <td class="website">
+          <h5>
+            <a href="http://'.$website.'" target="_blank" >
+            '.$website.'
+            </a>
+          </h5>
+        </td>
+        </td>
+        <td class="country">
+          <h5 >'.$fcountry.'</h5>
+        </td>
+        <td class="bio" style="display:none">
+          <h5 >'.$bio.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="myear">'.$myear.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="uyear">'.$uyear.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="dyear">'.$dyear.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="minst">'.$minst.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="uinst">'.$uinst.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="dinst">'.$dinst.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="mafield">'.$mafield.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="uafield">'.$uafield.'</h5>
+        </td>
+        <td style="display:none">
+          <h5 class="dafield">'.$dafield.'</h5>
+        </td>
+      </td>
+    ';
     $programCards .= $card;  
-    // break;
   }
 
   function generateOptionHTML($group){
@@ -222,101 +198,52 @@ function program_search() {
     return $optionHTML;
   }
 
-  // $programscontent = node_load_multiple(array(), array('type' => 'program'));
-
- 
-
-  // $testCard = '<li class="card"><a class="url" href="http://geo.dd:8083/Nanjing/Summer_Chinese"><div class="img-wrap"><img class="image" src="http://abhijit67.blog.com/files/2012/02/mount-everast.jpg"></div><div class="content"><h5 class="title">CIEE: Summer Chinese Studies in Nanjing, China</h5><p class="term">Summer</p><p class="discipline">Language Learning</p></div></a>';
-
-
-  // for ($i=0; $i < count($programscontent) ; $i++) { 
-  //   $programCards .= $testCard;
-  // }
-
   return array('#markup' => '
-  <div id="enrollment_notice" class="weak">
-    Showing results for: <span></span> <a id="change" href="">change</a>
-  </div>
-  <div id="question" style="display:none;">
-    Are you a University of Oregon student?<br>
-    <button id="yes">yes</button>
-    <button id="no">no</button>
-  </div>
+    <div id="programList">
+      <div id="controls">
+        <input class="search" placeholder="Search" value=""/>
+        <div id="catagories">
+          <select class="dyear_s" multiple data-placeholder="<span>Choose a</span> doctorate year">'. generateOptionHTML($dyearList) . '</select>
+          <select class="dinst_s" multiple data-placeholder="<span>Choose a</span> doctorate institution">'. generateOptionHTML($dinstList) . '</select>
+          <select class="dafield_s" multiple data-placeholder="<span>Choose a</span> doctorate field">'. generateOptionHTML($dafieldList) . '</select>
 
-  <div id="programList">
-  <div id="controls">
-    <input class="search" placeholder="Search" value=""/>
-    <!--<span class="weak">found:</span> <span id="found">'."$numberofPrograms".'</span>-->
-    <br><br>
-    
-    <div id="catagories">
-      <select class="discipline_s" multiple data-placeholder="<span>Choose a </span> Subject">'. generateOptionHTML($disciplines) . '
+          <select class="myear_s" multiple data-placeholder="<span>Choose a</span> masters year">'. generateOptionHTML($myearList) . '</select>
+          <select class="minst_s" multiple data-placeholder="<span>Choose a</span> masters institution">'. generateOptionHTML($minstList) . '</select>
+          <select class="mafield_s" multiple data-placeholder="<span>Choose a</span> masters field">'. generateOptionHTML($mafieldList) . '</select>
 
-      </select>
-
-      <select class="country_s" multiple data-placeholder="<span>Choose a</span> Country">'. generateOptionHTML($countries) . '
-      </select>
-
-      <select class="term_s" multiple data-placeholder="<span>Choose a</span> Term">'. generateOptionHTML($terms) . '
-      </select>
-
-      <!--<select class="price_s" multiple data-placeholder="<span>Choose a</span> Price">'. generateOptionHTML($prices) . '
-      </select>-->
-
-      <select class="region_s" multiple data-placeholder="<span>Choose a</span> Region">'. generateOptionHTML($regions) . '
-      </select>
-
-      <select class="type_s" multiple data-placeholder="<span>Choose a</span> Program Type">'. generateOptionHTML($types) . '
-      </select>
-
-      <div class="ms-parent reset">
-        <a href="/programs">
-          reset 
-        </a>
-      </div>
-    </div>
-  </div>
-    <ul class="list">
-      '. $programCards .'
-      </li>
-    </ul>
-</div>
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
-  ');
-
-  return array('#markup' => '
-    <div id="enrollment_notice">
-      Showing results for: <span></span> <a id="change" href="">change</a>
-    </div>
-    <div id="question" style="display:none;">
-      Are you a University of Oregon student? <br>
-      <button id="yes" class="button">Yes</button>
-      <button id="no">No</button>
-    </div>
-
-  	<div id="programs">
-    
-        <input class="search" placeholder="Where do you want to study?"/>
-        <button class="sort" data-sort="title">
-          search
-        </button>
-        <div class="catagories">
-        filter by:' . selectFrom(array('discipline', 'term')) .'
+          <select class="uyear_s" multiple data-placeholder="<span>Choose a</span> under graduate year">'. generateOptionHTML($uyearList) . '</select>         
+          <select class="uinst_s" multiple data-placeholder="<span>Choose a</span> under graduate institution">'. generateOptionHTML($uinstList) . '</select>
+          <select class="uafield_s" multiple data-placeholder="<span>Choose a</span> under graduate field">'. generateOptionHTML($uafieldList) . '</select>
+          
         </div>
-        <ul class="list">
-        </ul>
-        <br />
-        <!-- results: -->
-        <!-- <ul class="pag-nav">
-          <li id="first"><a><</a></li>
-          <li id="last"><a>></a></li>
-        </ul> -->
-        <ul class="pagination"> 
-        </ul>
       </div>
+      <table>
+        <thead>
+          <tr>
+            <td>
+              <button class="sort" data-sort="name">name</button>
+            </td>
+            <td>
+              <button class="sort" data-sort="title">title</button>
+            </td>
+            <td >
+              <button class="sort" data-sort="email">email</button>
+            </td>
+            <td >
+              <button class="sort" data-sort="website">website</button>
+            </td>
+            <td >
+              <button class="sort" data-sort="country">country</button>
+            </td>
+          </tr>
+        </thead>
+        <tbody class="list">
+          '. $programCards .'
+        </tbody>
+      </table>
+    </div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
   ');
-} 
-
+}
 
